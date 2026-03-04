@@ -48,7 +48,7 @@ export const Logo = () => (
     <div className="w-7 h-7 rounded-[10px]  flex items-center justify-center">
       <Icon d={IC.zap} cls="w-3.5 h-3.5 text-white" fill="currentColor" />
     </div>
-    <span className="text-sm font-bold tracking-wide text-zinc-100">FormFlow</span>
+    <span className="text-sm font-bold tracking-wide text-zinc-100">OrbitForm</span>
   </div>
 );
 

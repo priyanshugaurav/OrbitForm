@@ -219,8 +219,8 @@ app.post("/v1/settings/send-otp", async (req, res) => {
     await resend.emails.send({
       from: process.env.DEFAULT_FROM_EMAIL || "onboarding@resend.dev",
       to: email,
-      subject: "FormFlow - Verify your email",
-      html: `<div style="font-family: sans-serif; padding: 20px;"><h2>Verify your email for FormFlow</h2><p>Someone requested to add this email as a form submission recipient.</p><h1 style="letter-spacing: 4px; color: #4f46e5;">${otp}</h1><p>This code expires in 15 minutes.</p></div>`
+      subject: "OrbitForm - Verify your email",
+      html: `<div style="font-family: sans-serif; padding: 20px;"><h2>Verify your email for OrbitForm</h2><p>Someone requested to add this email as a form submission recipient.</p><h1 style="letter-spacing: 4px; color: #4f46e5;">${otp}</h1><p>This code expires in 15 minutes.</p></div>`
     });
     res.json({ success: true });
   } catch (err) {
@@ -238,4 +238,4 @@ app.post("/v1/settings/verify-otp", async (req, res) => {
   res.json({ success: true });
 });
 
-app.listen(3000, () => console.log("🚀 FormFlow API ready on :3000"));
+app.listen(3000, () => console.log("🚀 OrbitForm API ready on :3000"));

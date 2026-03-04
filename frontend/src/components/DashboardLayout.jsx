@@ -43,7 +43,7 @@ export default function DashboardLayout({
               <div className="w-6 h-6 rounded-md bg-white flex items-center justify-center">
                 <Icon d={IC.zap} cls="w-4 h-4 text-black" fill="currentColor" />
               </div>
-              <span className="font-bold tracking-tight text-white">FormFlow</span>
+              <span className="font-bold tracking-tight text-white">OrbitForm</span>
             </div>
           ) : (
             <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center mx-auto shadow-[0_0_15px_rgba(255,255,255,0.05)]">

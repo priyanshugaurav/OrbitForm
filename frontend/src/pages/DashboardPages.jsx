@@ -837,7 +837,7 @@ export const Integration = ({ API = "https://api.yourdomain.com", setPage }) => 
       <div className="shrink-0 mb-8">
         <h2 className="text-3xl font-bold tracking-tight mb-3">Integration Guide</h2>
         <p className="text-zinc-400 max-w-2xl text-sm leading-relaxed">
-          FormFlow is completely framework-agnostic. Whether you're using plain HTML, React, Vue, or Webflow, just point your form to our API.
+          OrbitForm is completely framework-agnostic. Whether you're using plain HTML, React, Vue, or Webflow, just point your form to our API.
         </p>
       </div>
 
@@ -882,7 +882,7 @@ export const Integration = ({ API = "https://api.yourdomain.com", setPage }) => 
                 <Icon d={IC.check} cls="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                 <p className="text-sm text-emerald-100/80 leading-relaxed">
                   <strong className="text-emerald-300 block mb-1">Redirection</strong>
-                  By default, FormFlow returns JSON. To redirect users to a "Thank You" page instead, add another hidden input:<br/>
+                  By default, OrbitForm returns JSON. To redirect users to a "Thank You" page instead, add another hidden input:<br/>
                   <code className="text-emerald-300 mt-2 block bg-emerald-500/20 p-1.5 rounded text-xs">&lt;input type="hidden" name="redirect" value="https://yoursite.com/thanks" /&gt;</code>
                 </p>
               </div>
@@ -895,7 +895,7 @@ export const Integration = ({ API = "https://api.yourdomain.com", setPage }) => 
               <div>
                 <h3 className="text-xl font-semibold text-white mb-2">Accepting File Attachments</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">
-                  FormFlow natively supports file uploads up to 5MB. Files are temporarily stored securely and forwarded directly as attachments to your email inbox.
+                  OrbitForm natively supports file uploads up to 5MB. Files are temporarily stored securely and forwarded directly as attachments to your email inbox.
                 </p>
               </div>
               
