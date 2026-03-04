@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormFlow Test Environment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for the textarea */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#050505] text-zinc-100 font-sans min-h-screen flex items-center justify-center p-6 selection:bg-indigo-500/30">
+
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
+
+    <div class="max-w-md w-full relative z-10">
+        <div class="mb-8 text-center">
+            <h1 class="text-2xl font-bold tracking-tight text-white">FormFlow Tester</h1>
+            <p class="text-sm text-zinc-400 mt-2">Test files, auto-responders, and security.</p>
+        </div>
+
+        <form id="testForm" action="http://localhost:3000/submit" method="POST" enctype="multipart/form-data" class="bg-[#0a0a0a] border border-zinc-800/80 rounded-2xl p-6 shadow-2xl space-y-5">
+            
+            <div>
+                <label class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Access Key (Required)</label>
+                <input type="text" name="access_key" placeholder="of_live_..." required
+                    class="w-full bg-[#050505] border border-zinc-800 rounded-xl px-4 py-3 text-sm text-indigo-300 font-mono focus:outline-none focus:border-indigo-500 transition-colors shadow-inner" />
+            </div>
+
+            <input type="checkbox" name="botcheck" style="display: none;" />
+
+            <input type="hidden" name="subject" value="🚀 New lead from HTML Tester!" />
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Name</label>
+                    <input type="text" name="name" placeholder="John Doe" required
+                        class="w-full bg-[#121214] border border-zinc-800/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-600 transition-colors" />
+                </div>
+                
+                <div>
+                    <label class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Email</label>
+                    <input type="email" name="email" placeholder="john@example.com" required
+                        class="w-full bg-[#121214] border border-zinc-800/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-600 transition-colors" />
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Subject</label>
+                <input type="text" name="subject" placeholder="Subject" required
+                        class="w-full bg-[#121214] border border-zinc-800/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-600 transition-colors" />
+            </div>
+
+            <div>
+                <label class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Message</label>
+                <textarea name="message" placeholder="How can we help?" required rows="3"
+                    class="w-full bg-[#121214] border border-zinc-800/80 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-600 transition-colors resize-none"></textarea>
+            </div>
+
+            <!-- <div>
+                <label class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Attachment (Max 5MB)</label>
+                <input type="file" name="attachment" accept="image/*,.pdf"
+                    class="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 transition-all cursor-pointer" />
+            </div> -->
+
+            <button type="submit" id="submitBtn"
+                class="w-full bg-indigo-500 hover:bg-indigo-400 text-white font-semibold text-sm py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] active:scale-[0.98]">
+                Send Submission
+            </button>
+        </form>
+
+        <div id="statusBox" class="mt-6 p-4 rounded-xl text-sm hidden font-medium text-center border"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('testForm');
+        const btn = document.getElementById('submitBtn');
+        const statusBox = document.getElementById('statusBox');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI Loading State
+            btn.innerHTML = "Sending...";
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+            statusBox.classList.add('hidden');
+
+            // Collect Data (automatically handles files because of FormData!)
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData // DO NOT SET CONTENT-TYPE! Browser sets it automatically for files.
+                });
+
+                const result = await response.json();
+
+                // Show Results
+                statusBox.classList.remove('hidden', 'bg-rose-500/10', 'border-rose-500/20', 'text-rose-400', 'bg-emerald-500/10', 'border-emerald-500/20', 'text-emerald-400');
+                
+                if (response.ok) {
+                    statusBox.classList.add('bg-emerald-500/10', 'border-emerald-500/20', 'text-emerald-400');
+                    statusBox.innerText = "✅ Success! Check your dashboard/email.";
+                    form.reset(); // Clear form on success
+                } else {
+                    statusBox.classList.add('bg-rose-500/10', 'border-rose-500/20', 'text-rose-400');
+                    statusBox.innerText = `❌ Error: ${result.error || 'Something went wrong'}`;
+                }
+            } catch (err) {
+                statusBox.classList.remove('hidden');
+                statusBox.classList.add('bg-rose-500/10', 'border-rose-500/20', 'text-rose-400');
+                statusBox.innerText = "❌ Network Error: Is your backend running on localhost:3000?";
+            } finally {
+                // Reset UI
+                btn.innerHTML = "Send Submission";
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+</html>
