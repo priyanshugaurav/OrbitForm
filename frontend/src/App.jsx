@@ -33,19 +33,32 @@ export default function App() {
   const close = () => { setModal(null); setForm({}); setBusy(false); };
 
   useEffect(() => {
+    // 1. Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => { 
       if (session?.user) {
         setUser(session.user);
+        if (window.location.hash.includes('access_token')) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
       } else if (import.meta.env.DEV) {
-        // Dev bypass user to access main screen directly when testing locally
         setUser({ id: 'demo-user-dev', email: 'founder@orbitform.space', user_metadata: { full_name: 'Orbit Founder' } });
       } else {
         setUser(null);
       }
       setLoading(false); 
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s?.user) setUser(s.user);
+
+    // 2. Auth state change listener (triggers on OAuth redirect hash return)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+      if (s?.user) {
+        setUser(s.user);
+        if (window.location.hash.includes('access_token')) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      } else if (!import.meta.env.DEV) {
+        setUser(null);
+      }
+      setLoading(false);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -102,6 +115,7 @@ export default function App() {
       }
     } 
   }, [user]);
+
   useEffect(() => { 
     if (active && user?.id !== 'demo-user-dev') { 
       loadLogs(); 
@@ -112,8 +126,22 @@ export default function App() {
 
   const loadProjects = async () => {
     if (user?.id === 'demo-user-dev') return;
-    const { data, error } = await supabase.from('projects').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-    if (!error) { setProjects(data || []); if (data?.length && !active) setActive(data[0]); }
+    try {
+      const { data, error } = await supabase.from('projects').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (!error && data?.length) {
+        setProjects(data);
+        if (!active) setActive(data[0]);
+      } else if (!error && (!data || data.length === 0)) {
+        // Automatically create a default workspace for new accounts so dashboard never stays blank
+        const { data: newProj } = await supabase.from('projects').insert([{ name: 'Default Workspace', user_id: user.id }]).select().single();
+        if (newProj) {
+          setProjects([newProj]);
+          setActive(newProj);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
   const loadLogs = async () => {
     if (user?.id === 'demo-user-dev') return;
