@@ -47,11 +47,14 @@ export default function App() {
         }).then(({ data, error }) => {
           if (!error && data?.session?.user) {
             setUser(data.session.user);
+          }
+          if (window.location.hash) {
             window.history.replaceState(null, '', window.location.pathname);
           }
           setLoading(false);
+        }).catch(() => {
+          setLoading(false);
         });
-        return;
       }
     }
 
@@ -65,13 +68,15 @@ export default function App() {
         setUser(null);
       }
       setLoading(false); 
+    }).catch(() => {
+      setLoading(false);
     });
 
     // 3. Auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
       if (s?.user) {
         setUser(s.user);
-        if (window.location.hash.includes('access_token')) {
+        if (window.location.hash) {
           window.history.replaceState(null, '', window.location.pathname);
         }
       } else if (!import.meta.env.DEV) {
@@ -79,7 +84,8 @@ export default function App() {
       }
       setLoading(false);
     });
-    return () => subscription.unsubscribe();
+
+    return () => subscription?.unsubscribe?.();
   }, []);
 
   useEffect(() => { 
@@ -149,17 +155,27 @@ export default function App() {
       const { data, error } = await supabase.from('projects').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
       if (!error && data?.length) {
         setProjects(data);
-        if (!active) setActive(data[0]);
+        setActive(data[0]);
       } else if (!error && (!data || data.length === 0)) {
-        // Automatically create a default workspace for new accounts so dashboard never stays blank
         const { data: newProj } = await supabase.from('projects').insert([{ name: 'Default Workspace', user_id: user.id }]).select().single();
         if (newProj) {
           setProjects([newProj]);
           setActive(newProj);
+        } else {
+          const fallback = { id: 'default-ws', name: 'Main Workspace', user_id: user.id, target_emails: [user.email] };
+          setProjects([fallback]);
+          setActive(fallback);
         }
+      } else {
+        const fallback = { id: 'default-ws', name: 'Main Workspace', user_id: user.id, target_emails: [user.email] };
+        setProjects([fallback]);
+        setActive(fallback);
       }
     } catch (e) {
       console.error(e);
+      const fallback = { id: 'default-ws', name: 'Main Workspace', user_id: user.id, target_emails: [user.email] };
+      setProjects([fallback]);
+      setActive(fallback);
     }
   };
   const loadLogs = async () => {
