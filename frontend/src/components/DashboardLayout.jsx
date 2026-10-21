@@ -34,103 +34,89 @@ export default function DashboardLayout({
 
   return (
     <>
-      <aside className={`${sidebarOpen ? 'w-72' : 'w-20'} shrink-0 flex flex-col bg-[#0a0a0a] border-r border-white/[0.05] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] relative z-20`}>
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
-
-        <div className="h-16 flex items-center px-6 border-b border-white/[0.05] gap-3 justify-between">
+      <aside className={`${sidebarOpen ? 'w-60' : 'w-18'} shrink-0 flex flex-col bg-zinc-950 border-r border-zinc-800/80 transition-all duration-200 relative z-20`}>
+        <div className="h-13 flex items-center px-4.5 border-b border-zinc-800/80 justify-between">
           {sidebarOpen ? (
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-white flex items-center justify-center">
-                <Icon d={IC.zap} cls="w-4 h-4 text-black" fill="currentColor" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-5.5 h-5.5 rounded bg-zinc-100 flex items-center justify-center">
+                <Icon d={IC.zap} cls="w-3.5 h-3.5 text-zinc-950" fill="currentColor" />
               </div>
-              <span className="font-bold tracking-tight text-white">OrbitForm</span>
+              <span className="text-sm font-semibold tracking-tight text-zinc-100">OrbitForm</span>
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center mx-auto shadow-[0_0_15px_rgba(255,255,255,0.05)]">
-              <Icon d={IC.zap} cls="w-4 h-4 text-white" fill="currentColor" />
+            <div className="w-8 h-8 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto">
+              <Icon d={IC.zap} cls="w-4 h-4 text-zinc-200" fill="currentColor" />
             </div>
           )}
         </div>
 
         {sidebarOpen && (
-          <div className="px-5 pt-6 pb-4 relative z-10">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mb-3 px-1">Current Workspace</p>
+          <div className="px-3.5 pt-3.5 pb-2.5 relative z-10 border-b border-zinc-900">
             <div className="relative group">
               <select 
                 value={active?.id || ''} 
                 onChange={e => setActive(projects.find(x => x.id === e.target.value))}
-                className="w-full bg-[#121214] border border-white/[0.08] hover:border-white/[0.15] rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-200 appearance-none focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer pr-10 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-200 appearance-none focus:outline-none focus:ring-1 focus:ring-zinc-600 cursor-pointer pr-8 transition-all"
               >
                 {!projects.length && <option disabled value="">No projects yet</option>}
-                {projects.map(p => <option key={p.id} value={p.id} className="bg-[#121214]">{p.name}</option>)}
+                {projects.map(p => <option key={p.id} value={p.id} className="bg-zinc-900">{p.name}</option>)}
               </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 bg-white/5 rounded flex items-center justify-center pointer-events-none group-hover:bg-white/10 transition-colors">
-                <Icon d={IC.chevron} cls="w-3.5 h-3.5 text-zinc-400 rotate-90" />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                <Icon d={IC.chevron} cls="w-3.5 h-3.5 rotate-90" />
               </div>
             </div>
             
             <button 
               onClick={() => setModal('newproject')} 
-              className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-zinc-400 border border-transparent hover:border-white/[0.05] hover:bg-white/[0.02] hover:text-zinc-200 transition-all"
+              className="mt-2 w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-all"
             >
-              <Icon d={IC.plus} cls="w-3.5 h-3.5" /> Create new workspace
+              <Icon d={IC.plus} cls="w-3.5 h-3.5" /> New workspace
             </button>
           </div>
         )}
 
-        <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto relative z-10">
-          {sidebarOpen && <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mb-3 px-3 mt-2">Menu</p>}
-          
+        <nav className="flex-1 px-2.5 py-3.5 space-y-1.5 overflow-y-auto relative z-10">
           {NAV.map(n => (
             <button 
               key={n.id} 
               onClick={() => setPage(n.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
                 page === n.id 
-                  ? 'bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]' 
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+                  ? 'bg-zinc-800/80 text-white font-semibold' 
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
               }`}
             >
-              <div className={`flex items-center justify-center w-6 h-6 rounded-md transition-colors ${
-                page === n.id ? 'bg-white/10 text-white' : 'text-zinc-500 group-hover:text-zinc-300'
+              <div className={`flex items-center justify-center w-4 h-4 shrink-0 ${
+                page === n.id ? 'text-zinc-100' : 'text-zinc-500'
               }`}>
                 <Icon d={n.icon} cls="w-4 h-4" />
               </div>
               
-              {sidebarOpen && <span>{n.label}</span>}
+              {sidebarOpen && <span className="text-[13px]">{n.label}</span>}
               
               {n.id === 'submissions' && sidebarOpen && unreadLogs.length > 0 && (
-                 <span className="ml-auto bg-indigo-500/20 text-indigo-400 text-[10px] px-2 py-0.5 rounded-full ring-1 ring-indigo-500/30">
+                 <span className="ml-auto bg-zinc-800 text-zinc-300 text-[10px] px-1.5 py-0.5 rounded font-mono">
                    {unreadLogs.length}
                  </span>
-              )}
-
-              {page === n.id && sidebarOpen && n.id !== 'submissions' && (
-                <div className="absolute right-10 w-1.5 h-1.5 bg-green-500 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
               )}
             </button>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-white/[0.05] bg-[#0a0a0a] relative z-10">
+        <div className="p-2.5 border-t border-zinc-800/80 bg-zinc-950 relative z-10">
           {sidebarOpen ? (
-            <div className="flex items-center gap-3 p-2 rounded-xl border border-transparent hover:border-white/[0.05] hover:bg-white/[0.02] transition-colors group cursor-pointer">
-              <div className="w-9 h-9 rounded-full p-[1px]">
-                <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xs font-bold text-white">
-                  {user.email?.[0]?.toUpperCase()}
-                </div>
+            <div className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-zinc-900 transition-colors group cursor-pointer">
+              <div className="w-7 h-7 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300 shrink-0">
+                {user.email?.[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
+                <p className="text-xs font-medium text-zinc-200 truncate">
                   {user.user_metadata?.name || user.email?.split('@')[0]}
                 </p>
-                <div className="flex items-center justify-between mt-0.5">
-                  <span className="text-[10px] text-zinc-500 truncate">{user.email}</span>
-                </div>
               </div>
               <button 
                 onClick={(e) => { e.stopPropagation(); supabase.auth.signOut(); }} 
-                className="p-1.5 text-zinc-500 hover:text-white hover:bg-white/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                className="p-1 text-zinc-500 hover:text-white rounded transition-colors"
                 title="Sign out"
               >
                 <Icon d={IC.logout} cls="w-3.5 h-3.5" />
@@ -139,37 +125,35 @@ export default function DashboardLayout({
           ) : (
             <button 
               onClick={() => supabase.auth.signOut()} 
-              className="w-full flex justify-center p-2.5 text-zinc-500 hover:text-white transition-colors rounded-xl hover:bg-white/[0.05]"
+              className="w-full flex justify-center p-2 text-zinc-500 hover:text-white transition-colors rounded hover:bg-zinc-900"
               title="Sign out"
             >
-              <Icon d={IC.logout} cls="w-5 h-5" />
+              <Icon d={IC.logout} cls="w-4 h-4" />
             </button>
           )}
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 bg-[#050505] relative z-10">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEuNSIgZmlsbD0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjAzKSIvPjwvc3ZnPg==')] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_80%)] pointer-events-none" />
-
-        <header className="h-16 border-b border-white/[0.05] flex items-center justify-between px-6 shrink-0 bg-[#050505]/80 backdrop-blur-xl sticky top-0 z-50">
-          <div className="flex items-center gap-4">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#09090b] relative z-10">
+        <header className="h-13 border-b border-zinc-800/80 flex items-center justify-between px-5 shrink-0 bg-zinc-950/80 backdrop-blur sticky top-0 z-50">
+          <div className="flex items-center gap-3">
             <button 
               onClick={() => setSidebarOpen(o => !o)} 
-              className="p-2 -ml-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/[0.05] transition-colors"
+              className="p-1.5 -ml-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={sidebarOpen ? "M4 6h16M4 12h16M4 18h16" : "M4 6h16M4 12h10M4 18h16"} />
               </svg>
             </button>
             
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold text-white tracking-tight">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xs font-semibold text-zinc-200 tracking-tight">
                 {NAV.find(n => n.id === page)?.label}
               </h1>
               {active && (
                 <>
-                  <span className="text-zinc-600">/</span>
-                  <span className="text-sm font-medium text-zinc-400 px-2 py-0.5 rounded-md bg-white/[0.03] border border-white/[0.05]">
+                  <span className="text-zinc-600 text-xs">/</span>
+                  <span className="text-xs font-mono text-zinc-400 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800">
                     {active.name}
                   </span>
                 </>
@@ -288,8 +272,8 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
-          <div className="max-w-[1000px] mx-auto space-y-8 animate-fade-in relative z-10">
+        <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
+          <div className="max-w-6xl mx-auto space-y-6 relative z-10">
             {children}
           </div>
         </main>

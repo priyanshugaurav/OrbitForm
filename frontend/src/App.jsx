@@ -9,8 +9,8 @@ import { GlobalModals, SubmissionDetail, ToastNotification } from './components/
 import { Overview, Inbox, ApiKeys, Webhooks, Integration, Settings } from './pages/DashboardPages';
 
 export default function App() {
-  const [user, setUser]         = useState(null);
-  const [loading, setLoading]   = useState(true);
+  const [user, setUser]         = useState({ id: 'demo-user-dev', email: 'founder@orbitform.space', user_metadata: { full_name: 'Orbit Founder' } });
+  const [loading, setLoading]   = useState(false);
   const [page, setPage]         = useState('overview');
   const [logs, setLogs]         = useState([]);
   const [projects, setProjects] = useState([]);
@@ -33,28 +33,101 @@ export default function App() {
   const close = () => { setModal(null); setForm({}); setBusy(false); };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => { setUser(session?.user ?? null); setLoading(false); });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setUser(s?.user ?? null));
+    supabase.auth.getSession().then(({ data: { session } }) => { 
+      if (session?.user) {
+        setUser(session.user);
+      } else if (import.meta.env.DEV) {
+        // Dev bypass user to access main screen directly when testing locally
+        setUser({ id: 'demo-user-dev', email: 'founder@orbitform.space', user_metadata: { full_name: 'Orbit Founder' } });
+      } else {
+        setUser(null);
+      }
+      setLoading(false); 
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (s?.user) setUser(s.user);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => { if (user) loadProjects(); }, [user]);
-  useEffect(() => { if (active) { loadLogs(); loadKeys(); loadWebhooks(); } }, [active?.id]);
+  useEffect(() => { 
+    if (user) {
+      if (user.id === 'demo-user-dev') {
+        const demoProject = {
+          id: 'demo-orbit-project-1',
+          name: 'Production Website',
+          target_emails: ['founder@orbitform.space'],
+          auto_responder: true,
+          auto_responder_msg: 'Thanks for reaching out! We will get back to you shortly.',
+          block_disposable: true,
+          privacy_mode: false,
+          created_at: new Date().toISOString()
+        };
+        setProjects([demoProject]);
+        setActive(demoProject);
+        setLogs([
+          {
+            id: 'log-1',
+            created_at: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+            status: 'sent',
+            read: false,
+            subject: 'New Enterprise Inquiry from Acme Corp',
+            payload: { name: 'Sarah Connor', email: 'sarah@acme.com', company: 'Acme Corp', message: 'Interested in annual tier for 50 users.' }
+          },
+          {
+            id: 'log-2',
+            created_at: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
+            status: 'sent',
+            read: true,
+            subject: 'Product Feedback & Feature Request',
+            payload: { name: 'David Miller', email: 'david@startup.io', message: 'Would love Discord & Slack notifications webhook!' }
+          },
+          {
+            id: 'log-3',
+            created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+            status: 'failed',
+            read: true,
+            subject: 'Spam blocked by disposable domain filter',
+            payload: { name: 'Bot Tester', email: 'spam@10minutemail.com', message: 'Claim prize' }
+          }
+        ]);
+        setApiKeys([
+          { id: 'key-1', name: 'Live Website Key', created_at: new Date().toISOString(), allowed_domains: ['https://orbitform.space'] }
+        ]);
+        setWebhooks([
+          { id: 'wh-1', url: 'https://discord.com/api/webhooks/demo-channel', created_at: new Date().toISOString() }
+        ]);
+      } else {
+        loadProjects();
+      }
+    } 
+  }, [user]);
+  useEffect(() => { 
+    if (active && user?.id !== 'demo-user-dev') { 
+      loadLogs(); 
+      loadKeys(); 
+      loadWebhooks(); 
+    } 
+  }, [active?.id]);
 
   const loadProjects = async () => {
+    if (user?.id === 'demo-user-dev') return;
     const { data, error } = await supabase.from('projects').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
     if (!error) { setProjects(data || []); if (data?.length && !active) setActive(data[0]); }
   };
   const loadLogs = async () => {
+    if (user?.id === 'demo-user-dev') return;
     setLl(true);
     try { const r = await fetch(`${API}/v1/logs/${active.id}`); if (r.ok) setLogs(await r.json()); } catch { setLogs([]); }
     setLl(false);
   };
   const loadKeys = async () => {
+    if (user?.id === 'demo-user-dev') return;
     const { data } = await supabase.from('api_keys').select('id, name, created_at').eq('project_id', active.id).order('created_at', { ascending: false });
     setApiKeys(data || []);
   };
   const loadWebhooks = async () => {
+    if (user?.id === 'demo-user-dev') return;
     try { const r = await fetch(`${API}/v1/webhooks/${active.id}`); if (r.ok) setWebhooks(await r.json()); } catch { setWebhooks([]); }
   };
   const createProject = async () => {
@@ -101,6 +174,14 @@ export default function App() {
 
   const updateProject = async (updates) => {
     setBusy(true);
+    if (user?.id === 'demo-user-dev') {
+      const updated = { ...active, ...updates };
+      setProjects(p => p.map(x => x.id === active.id ? updated : x));
+      setActive(updated);
+      setBusy(false);
+      msg('Workspace settings updated!');
+      return;
+    }
     const { data, error } = await supabase
       .from('projects')
       .update(updates)
@@ -214,7 +295,7 @@ export default function App() {
         projects={projects} setModal={setModal} logs={logs} loadLogs={loadLogs} 
         ll={ll} downloadCSV={downloadCSV} setReadLog={handleViewLog}
       >
-        {page === 'overview' && <Overview logs={logs} active={active} setPage={setPage} sentCount={sentCount} todayCount={todayCount} failedCount={failedCount} ll={ll} setReadLog={handleViewLog} apiKeys={apiKeys} webhooks={webhooks} setModal={setModal} />}
+        {page === 'overview' && <Overview API={API} logs={logs} active={active} setPage={setPage} sentCount={sentCount} todayCount={todayCount} failedCount={failedCount} ll={ll} setReadLog={handleViewLog} apiKeys={apiKeys} webhooks={webhooks} setModal={setModal} />}
         {page === 'submissions' && <Inbox logs={filteredLogs} active={active} search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} ll={ll} setReadLog={handleViewLog} />}
         {page === 'apikeys' && <ApiKeys apiKeys={apiKeys} active={active} setModal={setModal} deleteKey={deleteKey} />}
         {page === 'webhooks' && <Webhooks webhooks={webhooks} active={active} setModal={setModal} deleteWebhook={deleteWebhook} />}

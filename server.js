@@ -238,4 +238,9 @@ app.post("/v1/settings/verify-otp", async (req, res) => {
   res.json({ success: true });
 });
 
-app.listen(3000, () => console.log("🚀 OrbitForm API ready on :3000"));
+const PORT = process.env.PORT || 3000;
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  app.listen(PORT, () => console.log(`🚀 OrbitForm API ready on :${PORT}`));
+}
+
+export default app;

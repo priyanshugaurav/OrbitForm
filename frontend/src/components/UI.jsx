@@ -36,12 +36,7 @@ export const IC = {
   sparkles: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z",
 };
 
-export const Noise = () => (
-  <div 
-    className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.035] mix-blend-screen"
-    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
-  />
-);
+export const Noise = () => null;
 
 export const Logo = () => (
   <div className="flex items-center gap-3">
@@ -97,24 +92,27 @@ export const Btn = ({ children, variant = 'primary', cls = '', ...p }) => {
   return <button className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none ${v[variant]} ${cls}`} {...p}>{children}</button>;
 };
 
-// Helper component for the new StatCard (assuming it wasn't provided or needs update)
-export const StatCard = ({ label, value, sub, icon, color }) => (
-  <div className={`relative p-5 rounded-2xl bg-[#0c0c0e]/80 backdrop-blur-xl border border-white/[0.05] overflow-hidden group hover:border-white/[0.1] transition-colors`}>
-    {/* Subtle background gradient based on color prop */}
-    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color} blur-[50px] opacity-40 group-hover:opacity-80 transition-opacity`} />
-    
-    <div className="relative z-10 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-zinc-400">{label}</p>
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-[#121214] border ${color.split(' ').slice(-1)[0]}`}>
-          <Icon d={icon} cls={`w-4 h-4 ${color.split(' ').slice(-2)[0]}`} />
-        </div>
+// Sleek, production-ready compact StatCard with refined micro-borders (+10% size)
+export const StatCard = ({ label, value, sub, icon, trend, statusDot }) => (
+  <div className="relative p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 hover:border-zinc-700/80 transition-all duration-150 group">
+    <div className="flex items-center justify-between text-zinc-400 mb-2.5">
+      <div className="flex items-center gap-2">
+        {statusDot && <span className={`w-2 h-2 rounded-full ${statusDot}`} />}
+        <span className="text-xs font-medium tracking-tight text-zinc-400">{label}</span>
       </div>
-      <div>
-        <h4 className="text-3xl font-bold text-white tracking-tight">{value}</h4>
-        <p className="text-xs text-zinc-500 mt-1 font-medium">{sub}</p>
+      <div className="text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <Icon d={icon} cls="w-4 h-4" />
       </div>
     </div>
+    <div className="flex items-baseline justify-between gap-2">
+      <div className="text-2xl font-semibold tracking-tight text-zinc-100 font-mono">{value}</div>
+      {trend && (
+        <span className="text-[11px] font-medium font-mono text-zinc-500">
+          {trend}
+        </span>
+      )}
+    </div>
+    {sub && <p className="text-[11px] text-zinc-500 mt-1.5 truncate">{sub}</p>}
   </div>
 );
 
