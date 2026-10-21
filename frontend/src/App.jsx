@@ -9,8 +9,8 @@ import { GlobalModals, SubmissionDetail, ToastNotification } from './components/
 import { Overview, Inbox, ApiKeys, Webhooks, Integration, Settings } from './pages/DashboardPages';
 
 export default function App() {
-  const [user, setUser]         = useState({ id: 'demo-user-dev', email: 'founder@orbitform.space', user_metadata: { full_name: 'Orbit Founder' } });
-  const [loading, setLoading]   = useState(false);
+  const [user, setUser]         = useState(null);
+  const [loading, setLoading]   = useState(true);
   const [page, setPage]         = useState('overview');
   const [logs, setLogs]         = useState([]);
   const [projects, setProjects] = useState([]);
@@ -33,13 +33,32 @@ export default function App() {
   const close = () => { setModal(null); setForm({}); setBusy(false); };
 
   useEffect(() => {
-    // 1. Initial session check
+    // 1. Check if returning from OAuth hash
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      const params = new URLSearchParams(hash.substring(1));
+      const access_token = params.get('access_token');
+      const refresh_token = params.get('refresh_token');
+
+      if (access_token && refresh_token) {
+        supabase.auth.setSession({
+          access_token,
+          refresh_token,
+        }).then(({ data, error }) => {
+          if (!error && data?.session?.user) {
+            setUser(data.session.user);
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+          setLoading(false);
+        });
+        return;
+      }
+    }
+
+    // 2. Normal getSession check
     supabase.auth.getSession().then(({ data: { session } }) => { 
       if (session?.user) {
         setUser(session.user);
-        if (window.location.hash.includes('access_token')) {
-          window.history.replaceState(null, '', window.location.pathname);
-        }
       } else if (import.meta.env.DEV) {
         setUser({ id: 'demo-user-dev', email: 'founder@orbitform.space', user_metadata: { full_name: 'Orbit Founder' } });
       } else {
@@ -48,7 +67,7 @@ export default function App() {
       setLoading(false); 
     });
 
-    // 2. Auth state change listener (triggers on OAuth redirect hash return)
+    // 3. Auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
       if (s?.user) {
         setUser(s.user);
